@@ -8,17 +8,32 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const origin = requestUrl.origin;
-  const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
+  const next = requestUrl.searchParams.get("redirect_to") || '/protected';
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
-  }
+    try {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      if (error) {
+        console.error('Auth exchange error:', error.message);
+        return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      }
 
-  if (redirectTo) {
-    return NextResponse.redirect(`${origin}${redirectTo}`);
+      // Optional: You can handle specific provider data here
+      const { provider } = data.user?.app_metadata || {};
+      if (provider === 'google') {
+        // You can add any Google-specific logic here if needed
+        console.log('Successfully authenticated with Google');
+      }
+
+      return NextResponse.redirect(`${origin}${next}`);
+    } catch (error) {
+      console.error('Unexpected error during auth:', error);
+      return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    }
   }
 
   // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/protected`);
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
