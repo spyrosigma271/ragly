@@ -9,7 +9,8 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({ mode, className = '' }: GoogleAuthButtonProps) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  // const siteUrl = 'http://localhost:3000';
 
   const handleGoogleAuth = async () => {
     const supabase = createClient();
