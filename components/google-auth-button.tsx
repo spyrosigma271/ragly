@@ -9,12 +9,14 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({ mode, className = '' }: GoogleAuthButtonProps) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
   const handleGoogleAuth = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback?redirect_to=/protected`,
       },
     });
   };

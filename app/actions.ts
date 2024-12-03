@@ -137,10 +137,14 @@ export const signInWithGoogleAction = async () => {
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: `${origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
     },
   });
 
@@ -148,5 +152,5 @@ export const signInWithGoogleAction = async () => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
-  return redirect("/protected");
+  return redirect(data.url);
 };
